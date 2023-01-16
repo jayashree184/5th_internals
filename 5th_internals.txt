@@ -1,0 +1,168 @@
+pip install tensorflow
+
+pip install keras
+
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import matplotlib.pyplot as plt
+
+(x_train,y_train),(x_val,y_val)=keras.datasets.boston_housing.load_data()
+
+def create_model(hidden_layers,neurons_per_layer):
+    model=keras.Sequential()
+    model.add(layers.Dense(neurons_per_layer,activation='relu',input_shape=(x_train.shape[1],)))
+    for i in range(hidden_layers):
+        model.add(layers.Dense(neurons_per_layer,activation='relu'))
+        model.add(layers.Dense(1))
+        model.compile(optimizer='adam',loss='mean_squared_error',metrics=['mae'])
+    return model
+
+hidden_layers=[1,2,3]
+neurons_per_layer=[32,64,128]
+for hidden in hidden_layers:
+    for neurons in neurons_per_layer:
+        model=create_model(hidden,neurons)
+        history=model.fit(x_train,y_train,epochs=100,validation_data=(x_val,y_val))
+
+import numpy as np
+def plot_history(history):
+    plt.figure(figsize=(12,4))
+    plt.subplot(1,2,1)
+    plt.xlabel('Epoch')
+    plt.ylabel('Mean Abs Error [1000$]')
+    plt.plot(history.epoch, np.array(history.history['mae']),label='Train Loss')
+    plt.plot(history.epoch, np.array(history.history['val_mae']),label='Val Loss')
+    plt.legend()
+    plt.subplot(1,2,2)
+    plt.ylabel('Mean Abs Error [1000$]')
+    plt.plot(history.epoch, np.array(history.history['loss']),label='Train Loss')
+    plt.plot(history.epoch, np.array(history.history['val_loss']),label='Val Loss')
+    plt.legend()
+    plt.show()
+    
+plot_history(history)
+
+pip install nltk
+
+import nltk
+nltk.download('punkt')
+
+from nltk.probability import FreqDist
+
+text1="India will play against Australia this summer. It will be an exciting series"
+
+print(text1)
+
+word_tokens=nltk.word_tokenize(text1)
+
+print(word_tokens)
+
+len(word_tokens)
+
+text1=FreqDist(word_tokens)
+
+print(text1)
+
+text1.most_common(10)
+
+text1.freq("India")
+
+import matplotlib.pyplot as plt
+fig,ax=plt.subplots(figsize=(10,5))
+text1.plot(10)
+
+pip install wordcloud
+
+from wordcloud import WordCloud, STOPWORDS
+
+pip install wikipedia
+
+import wikipedia
+
+pip install PIL
+
+from PIL import Image
+
+stop_w=set(STOPWORDS)
+
+info=("Python is handled by Parmeshwar Sir")
+
+print(info)
+
+word_cloud=WordCloud(stopwords=stop_w).generate(info)
+
+img=word_cloud.to_image()
+
+img.show()
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import fetch_openml
+
+data=fetch_openml('mnist_784',version=1,return_X_y=True)
+pixels,target=data
+target=target.astype(int)
+
+single_image=pixels.iloc[1,:].values.reshape(28,28)
+plt.imshow(single_image,cmap='gray')
+
+from sklearn import manifold
+%matplotlib inline
+
+tsne=manifold.TSNE(n_components=2,random_state=42)
+transformned_data=tsne.fit_transform(pixels.iloc[:3000,:])
+
+mnist_df=pd.DataFrame(np.column_stack((transformned_data,target.iloc[:3000])),columns=['x','y','target'])
+mnist_df.iloc[:,'target']=mnist_df.target.astype(int)
+
+grid=sns.FacetGrid(mnist_df,hue='target',size=8)
+grid.map(plt.scatter,'x','y').add_legend()
+
+pixels.loc[1].values
+
+sns.boxplot(mnist_df['x'])
+plt.title('boxplot')
+plt.xlabel('x')
+plt.show()
+
+import numpy as np
+%matplotlib inline
+import matplotlib.pyplot as plt
+pixel=pixels.loc[1]
+pixel=np.array(pixel,dtype='uint8')
+pixel=pixel.reshape((28,28))
+plt.imshow(pixel,cmap='gray')
+plt.show()
+
+x=mnist_df.drop('target',axis=1)
+x
+
+y=mnist_df['target']
+y
+
+from sklearn.model_selection import train_test_split
+
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,random_state=1)
+
+from sklearn.ensemble import RandomForestClassifier
+model=RandomForestClassifier()
+model.fit(x_train,y_train)
+
+y_pred=model.predict(x_test)
+
+model.score(x_test,y_test)
+
+from sklearn.metrics import accuracy_score
+accuracy_score(y_pred,y_test)
+
+x_test.iloc[1]
+
+y_test.iloc[3]
+
+mnist_df=mnist_df.reindex(labels=mnist_df.columns,axis=1)
+
+model.predict(x_test.iloc[3].values.reshape(1,-1))
+
